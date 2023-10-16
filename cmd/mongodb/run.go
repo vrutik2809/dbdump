@@ -20,6 +20,7 @@ func run(cmd *cobra.Command, args []string) {
 	outputDir, _ := cmd.Flags().GetString("dir")
 	isSRV, _ := cmd.Flags().GetBool("srv")
 	collections, _ := cmd.Flags().GetStringSlice("collections")
+	collectionsExclude, _ := cmd.Flags().GetStringSlice("collections-exclude")
 	
 	mongo := mongodb.NewMongoDB(username, password, host, port, dbName, isSRV)
 
@@ -35,7 +36,7 @@ func run(cmd *cobra.Command, args []string) {
 
 	fmt.Println("Connected to MongoDB | uri: " + mongo.GetURI())
 
-	filter := mongodb.CollectionFilter(collections)
+	filter := mongodb.CollectionFilter(collections, collectionsExclude)
 
 	collections, err := mongo.FetchCollections(filter)
 

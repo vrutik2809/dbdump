@@ -111,12 +111,20 @@ func (m *mongoDB) FetchAllDocuments(collection string) ([]bson.D, error) {
 	return results, err
 }
 
-func CollectionFilter(collections []string) bson.D {
-	var filter bson.D
+func CollectionFilter(collections []string,collectionsExclude []string) bson.D {
+	value := bson.A{}
 	if len(collections) > 0 {
-		filter = bson.D{{Key: "name", Value: bson.D{{Key: "$in", Value: collections}}}}
-	} else {
+		value = append(value, bson.D{{Key: "name", Value: bson.D{{Key: "$in", Value: collections}}}})
+	}
+	if len(collectionsExclude) > 0 {
+		value = append(value, bson.D{{Key: "name", Value: bson.D{{Key: "$nin", Value: collectionsExclude}}}})
+	}
+	
+	var filter bson.D
+	if len(value) == 0 {
 		filter = bson.D{}
+	} else {
+		filter = bson.D{{Key: "$and", Value: value}}
 	}
 
 	return filter
