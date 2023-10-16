@@ -91,8 +91,8 @@ func (m *mongoDB) Ping() error {
 	return err
 }
 
-func (m *mongoDB) FetchCollections() ([]string, error) {
-	collections, err := m.client.Database(m.dbName).ListCollectionNames(m.ctx, bson.D{})
+func (m *mongoDB) FetchCollections(filter interface{}) ([]string, error) {
+	collections, err := m.client.Database(m.dbName).ListCollectionNames(m.ctx, filter)
 
 	return collections, err
 }
@@ -109,4 +109,15 @@ func (m *mongoDB) FetchAllDocuments(collection string) ([]bson.D, error) {
 	}
 
 	return results, err
+}
+
+func CollectionFilter(collections []string) bson.D {
+	var filter bson.D
+	if len(collections) > 0 {
+		filter = bson.D{{Key: "name", Value: bson.D{{Key: "$in", Value: collections}}}}
+	} else {
+		filter = bson.D{}
+	}
+
+	return filter
 }

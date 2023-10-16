@@ -20,6 +20,7 @@ func init(){
 	MongodbCmd.Flags().StringP("db-name", "d", "", "name of the database")
 	MongodbCmd.Flags().String("dir", "dump", "name of the output directory")
 	MongodbCmd.Flags().Bool("srv", false, "use SRV connection format")
+	MongodbCmd.Flags().StringSliceP("collections", "c", []string{}, "name of the collections to dump")
 
 	MongodbCmd.MarkFlagRequired("db-name")
 	MongodbCmd.MarkFlagsRequiredTogether("username", "password")

@@ -6,7 +6,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func BsonDArrayToFile(bsonDArray []bson.D, filename string) error {
+func BsonDArrayToJsonFile(bsonDArray []bson.D, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err

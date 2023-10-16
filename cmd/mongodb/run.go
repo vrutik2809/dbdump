@@ -19,6 +19,7 @@ func run(cmd *cobra.Command, args []string) {
 	dbName, _ := cmd.Flags().GetString("db-name")
 	outputDir, _ := cmd.Flags().GetString("dir")
 	isSRV, _ := cmd.Flags().GetBool("srv")
+	collections, _ := cmd.Flags().GetStringSlice("collections")
 	
 	mongo := mongodb.NewMongoDB(username, password, host, port, dbName, isSRV)
 
@@ -34,7 +35,9 @@ func run(cmd *cobra.Command, args []string) {
 
 	fmt.Println("Connected to MongoDB | uri: " + mongo.GetURI())
 
-	collections, err := mongo.FetchCollections()
+	filter := mongodb.CollectionFilter(collections)
+
+	collections, err := mongo.FetchCollections(filter)
 
 	if err != nil {
 		log.Fatal(err)
@@ -52,7 +55,7 @@ func run(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 
-		if err := utils.BsonDArrayToFile(bsonDArray, collection+".json"); err != nil {
+		if err := utils.BsonDArrayToJsonFile(bsonDArray, collection+".json"); err != nil {
 			log.Fatal(err)
 		}
 	}
