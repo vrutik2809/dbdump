@@ -2,8 +2,13 @@ package mongodb
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/vrutik2809/dbdump/utils/mongodb"
+	"github.com/vrutik2809/dbdump/utils"
 )
 
 func run(cmd *cobra.Command, args []string) {
@@ -12,21 +17,43 @@ func run(cmd *cobra.Command, args []string) {
 	host, _ := cmd.Flags().GetString("host")
 	port, _ := cmd.Flags().GetUint("port")
 	dbName, _ := cmd.Flags().GetString("db-name")
+	outputDir, _ := cmd.Flags().GetString("dir")
+	isSRV, _ := cmd.Flags().GetBool("srv")
 	
-	mongo := mongoDB{
-		username: username,
-		password: password,
-		host: host,
-		port: port,
-		dbName: dbName,
+	mongo := mongodb.NewMongoDB(username, password, host, port, dbName, isSRV)
+
+	if err := mongo.Connect(); err != nil {
+		log.Fatal(err)
 	}
 
-	output, err := mongo.dump()
+	defer mongo.Close()
+
+	if err := mongo.Ping(); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println("Connected to MongoDB | uri: " + mongo.GetURI())
+
+	collections, err := mongo.FetchCollections()
 
 	if err != nil {
-		fmt.Println("Error:", err)
-		return
+		log.Fatal(err)
 	}
 
-	fmt.Println(output)
+	os.RemoveAll(outputDir)
+	os.Mkdir(outputDir, 0777)
+	os.Chdir(outputDir)
+
+	for _, collection := range collections {
+		fmt.Println("dumping collection:", collection)
+
+		bsonDArray, err := mongo.FetchAllDocuments(collection)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if err := utils.BsonDArrayToFile(bsonDArray, collection+".json"); err != nil {
+			log.Fatal(err)
+		}
+	}
 }
