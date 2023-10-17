@@ -7,7 +7,6 @@ CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` int
 <!-- create a table  -->
 | Command | Description |
 | --- | --- |
-| `dbdump` | Dump database into various formats |
 |`mongodb`| command for dumping MongoDB database |
 |`pg`| command for dumping PostgreSQL database |
 
