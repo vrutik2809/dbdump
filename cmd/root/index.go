@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/vrutik2809/dbdump/cmd/mongodb"
+	"github.com/vrutik2809/dbdump/cmd/postgresql"
 )
 
 var RootCmd = &cobra.Command{
@@ -20,4 +21,5 @@ var RootCmd = &cobra.Command{
 // the init() function in Go is automatically invoked when the package is initialized.
 func init() {
 	RootCmd.AddCommand(mongodb.MongodbCmd)
+	RootCmd.AddCommand(postgresql.PostgresqlCmd)
 }
