@@ -2,6 +2,7 @@ package utils
 
 import (
 	"os"
+	"encoding/json"
 	"compress/gzip"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -13,23 +14,23 @@ func BsonDArrayToJsonFile(bsonDArray []bson.D, filename string) error {
 		return err
 	}
 	defer file.Close()
-	file.WriteString("[")
 
-	first := true
+	result := []map[string]interface{}{}
 
 	for _, bsonD := range bsonDArray {
-		res, err := BsonDToJson(bsonD)
+		res, err := BsonDToMap(bsonD)
 		if err != nil {
 			return err
 		}
-
-		if !first {
-			file.WriteString(",")
-		}
-		first = false
-		file.WriteString(string(res))
+		result = append(result, res)
 	}
-	file.WriteString("]")
+
+	jsonData, err := json.MarshalIndent(result, "", "\t")
+	if err != nil {
+		return err
+	}
+
+	file.Write(jsonData)
 
 	return nil
 }
