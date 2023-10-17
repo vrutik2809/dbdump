@@ -65,7 +65,7 @@ func run(cmd *cobra.Command, args []string) {
 	outputDir, _ := cmd.Flags().GetString("dir")
 	isSRV, _ := cmd.Flags().GetBool("srv")
 	collections, _ := cmd.Flags().GetStringSlice("collections")
-	collectionsExclude, _ := cmd.Flags().GetStringSlice("collections-exclude")
+	collectionsExclude, _ := cmd.Flags().GetStringSlice("exclude-collections")
 	output, _ := cmd.Flags().GetString("output")
 
 	if !isOutputTypeValid(output) {
