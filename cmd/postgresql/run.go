@@ -19,6 +19,8 @@ func run(cmd *cobra.Command, args []string) {
 	dbName, _ := cmd.Flags().GetString("db-name")
 	outputDir, _ := cmd.Flags().GetString("dir")
 	schema, _ := cmd.Flags().GetString("schema")
+	dumpTables, _ := cmd.Flags().GetStringSlice("tables")
+	excludeTables, _ := cmd.Flags().GetStringSlice("exclude-tables")
 
 	os.RemoveAll(outputDir)
 	os.Mkdir(outputDir, 0777)
@@ -37,7 +39,7 @@ func run(cmd *cobra.Command, args []string) {
 
 	fmt.Println("Connected to DB successfully | uri: ", pg.GetURI())
 
-	tables, err := pg.FetchAllTables(schema)
+	tables, err := pg.FetchTables(schema, dumpTables, excludeTables)
 	if err != nil {
 		log.Fatal(err)
 	}

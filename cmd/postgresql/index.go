@@ -20,6 +20,8 @@ func init() {
 	PostgresqlCmd.Flags().StringP("db-name", "d", "", "name of the database")
 	PostgresqlCmd.Flags().String("dir", "dump", "name of the output directory")
 	PostgresqlCmd.Flags().StringP("schema", "s", "public", "name of the schema")
+	PostgresqlCmd.Flags().StringSliceP("tables", "t", []string{}, "name of the tables to dump")
+	PostgresqlCmd.Flags().StringSliceP("exclude-tables", "e", []string{}, "name of the tables to exclude")
 
 	PostgresqlCmd.MarkFlagRequired("db-name")
 }
