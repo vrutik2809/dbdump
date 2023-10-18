@@ -59,8 +59,8 @@ func run(cmd *cobra.Command, args []string) {
 	port, _ := cmd.Flags().GetUint("port")
 	dbName, _ := cmd.Flags().GetString("db-name")
 	outputDir, _ := cmd.Flags().GetString("dir")
-	// dumpTables, _ := cmd.Flags().GetStringSlice("tables")
-	// excludeTables, _ := cmd.Flags().GetStringSlice("exclude-tables")
+	dumpTables, _ := cmd.Flags().GetStringSlice("tables")
+	excludeTables, _ := cmd.Flags().GetStringSlice("exclude-tables")
 	output, _ := cmd.Flags().GetString("output")
 
 	if !isOutputValid(output) {
@@ -84,7 +84,7 @@ func run(cmd *cobra.Command, args []string) {
 
 	fmt.Println("Connected to MySQL | uri: ", msq.GetURI())
 
-	tables, err := msq.FetchTables()
+	tables, err := msq.FetchTables(dumpTables, excludeTables)
 
 	if err != nil {
 		log.Fatal(err)

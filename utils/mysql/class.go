@@ -3,6 +3,7 @@ package mysql
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -68,8 +69,17 @@ func sqlRowToString(rows *sql.Rows) ([]string, error) {
 	return result, nil
 }
 
-func (m *mySql) FetchTables() ([]string, error) {
-	rows, err := m.client.Query("SHOW TABLES")
+func (m *mySql) FetchTables(dumpTables []string, excludeTables []string) ([]string, error) {
+	in := "'" + strings.Join(dumpTables, "','") + "'"
+	notIn := "'" + strings.Join(excludeTables, "','") + "'"
+	query := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", m.dbName)
+	if len(dumpTables) > 0 {
+		query = fmt.Sprintf("%s AND table_name IN (%s)", query, in)
+	}
+	if len(excludeTables) > 0 {
+		query = fmt.Sprintf("%s AND table_name NOT IN (%s)", query, notIn)
+	}
+	rows, err := m.client.Query(query)
 	if err != nil {
 		return nil, err
 	}
