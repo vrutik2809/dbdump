@@ -50,32 +50,84 @@ func (p *postgresql) Ping() error {
 	return p.client.Ping()
 }
 
-func (p *postgresql) FetchTables(schema string, dumpTables []string, excludeTables []string) (*sql.Rows, error) {
-	if len(dumpTables) > 0 && len(excludeTables) > 0 {
-		in := "'" + strings.Join(dumpTables, "','") + "'"
-		notIn := "'" + strings.Join(excludeTables, "','") + "'"
-		query := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s' AND table_name IN (%s) AND table_name NOT IN (%s)", schema, in, notIn)
-		rows, err := p.client.Query(query)
-		return rows, err
+func sqlRowToString(rows *sql.Rows) ([]string, error) {
+	defer rows.Close()
+
+	var result []string
+	for rows.Next() {
+		var tableName string
+		err := rows.Scan(&tableName)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, tableName)
 	}
-	if len(dumpTables) > 0 {
-		in := "'" + strings.Join(dumpTables, "','") + "'"
-		query := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s' AND table_name IN (%s)", schema, in)
-		rows, err := p.client.Query(query)
-		return rows, err
-	}	
-	if len(excludeTables) > 0 {
-		notIn := "'" + strings.Join(excludeTables, "','") + "'"
-		query := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s' AND table_name NOT IN (%s)", schema, notIn)
-		rows, err := p.client.Query(query)
-		return rows, err
+
+	if err := rows.Err(); err != nil {
+		return nil, err
 	}
-	rows, err := p.client.Query("SELECT table_name FROM information_schema.tables WHERE table_schema = $1", schema)
-	return rows, err
+
+	return result, nil
 }
 
-func (p *postgresql) FetchAllRows(table string) (*sql.Rows, error) {
-	rows, err := p.client.Query("SELECT * FROM " + table)
+func (p *postgresql) FetchTables(schema string, dumpTables []string, excludeTables []string) ([]string, error) {
+	in := "'" + strings.Join(dumpTables, "','") + "'"
+	notIn := "'" + strings.Join(excludeTables, "','") + "'"
+	query := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", schema)
+	if len(dumpTables) > 0 {
+		query = fmt.Sprintf("%s AND table_name IN (%s)", query, in)
+	}
+	if len(excludeTables) > 0 {
+		query = fmt.Sprintf("%s AND table_name NOT IN (%s)", query, notIn)
+	}
+	rows, err := p.client.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	return sqlRowToString(rows)
+}
 
-	return rows, err
+func sqlRowToMap(rows *sql.Rows) ([]map[string]interface{}, error) {
+	defer rows.Close()
+
+	var result []map[string]interface{}
+	for rows.Next() {
+		columns, err := rows.Columns()
+		if err != nil {
+			return nil, err
+		}
+
+		values := make([]interface{}, len(columns))
+		for i := range values {
+			values[i] = new(interface{})
+		}
+
+		err = rows.Scan(values...)
+		if err != nil {
+			return nil, err
+		}
+
+		rowData := make(map[string]interface{})
+		for i, column := range columns {
+			val := *(values[i].(*interface{}))
+			rowData[column] = val
+		}
+
+		result = append(result, rowData)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return result, nil
+}
+
+func (p *postgresql) FetchAllRows(table string) ([]map[string]interface{}, error) {
+	rows, err := p.client.Query("SELECT * FROM " + table)
+	if err != nil {
+		return nil, err
+	}
+
+	return sqlRowToMap(rows)
 }

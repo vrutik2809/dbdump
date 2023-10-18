@@ -83,66 +83,21 @@ func run(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
-	fmt.Println("Connected to DB successfully | uri: ", pg.GetURI())
+	fmt.Println("Connected to PostgreSQL | uri: ", pg.GetURI())
 
 	tables, err := pg.FetchTables(schema, dumpTables, excludeTables)
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer tables.Close()
 
-	for tables.Next() {
-		var tableName string
-		err := tables.Scan(&tableName)
+	for _, table := range tables {
+		fmt.Println("dumping table: ", table)
+		rows, err := pg.FetchAllRows(table)
 		if err != nil {
 			log.Fatal(err)
 		}
-
-		fmt.Println("dumping table: ", tableName)
-
-		rows, err := pg.FetchAllRows(tableName)
-		if err != nil {
+		if err := writeToOutputFile(output, rows, table); err != nil {
 			log.Fatal(err)
 		}
-		defer rows.Close()
-
-		var result []map[string]interface{}
-
-		for rows.Next() {
-			columns, err := rows.Columns()
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			values := make([]interface{}, len(columns))
-			for i := range values {
-				values[i] = new(interface{})
-			}
-
-			err = rows.Scan(values...)
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			rowData := make(map[string]interface{})
-			for i, column := range columns {
-				val := *(values[i].(*interface{}))
-				rowData[column] = val
-			}
-
-			result = append(result, rowData)
-		}
-
-		if err = rows.Err(); err != nil {
-			log.Fatal(err)
-		}
-
-		if err := writeToOutputFile(output, result, tableName); err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	if err = tables.Err(); err != nil {
-		log.Fatal(err)
 	}
 }

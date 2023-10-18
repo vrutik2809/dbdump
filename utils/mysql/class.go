@@ -48,40 +48,38 @@ func (m *mySql) Ping() error {
 	return m.client.Ping()
 }
 
-func (m *mySql) FetchTables() ([]string, error) {
-	rows, err := m.client.Query("SHOW TABLES")
-	if err != nil {
-		return nil, err
-	}
+func sqlRowToString(rows *sql.Rows) ([]string, error) {
 	defer rows.Close()
 
-	var tables []string
+	var result []string
 	for rows.Next() {
 		var tableName string
 		err := rows.Scan(&tableName)
 		if err != nil {
 			return nil, err
 		}
-		tables = append(tables, tableName)
+		result = append(result, tableName)
 	}
 
-	if err = rows.Err(); err != nil {
+	if err := rows.Err(); err != nil {
 		return nil, err
 	}
 
-	return tables, nil
+	return result, nil
 }
 
-func (m *mySql) FetchAllRows(tableName string) ([]map[string]interface{}, error) {
-	query := fmt.Sprintf("SELECT * FROM %s", tableName)
-	rows, err := m.client.Query(query)
+func (m *mySql) FetchTables() ([]string, error) {
+	rows, err := m.client.Query("SHOW TABLES")
 	if err != nil {
 		return nil, err
 	}
+	return sqlRowToString(rows)
+}
+
+func sqlRowToMap(rows *sql.Rows) ([]map[string]interface{}, error) {
 	defer rows.Close()
 
 	var result []map[string]interface{}
-
 	for rows.Next() {
 		columns, err := rows.Columns()
 		if err != nil {
@@ -112,5 +110,18 @@ func (m *mySql) FetchAllRows(tableName string) ([]map[string]interface{}, error)
 		result = append(result, rowData)
 	}
 
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
 	return result, nil
+}
+
+func (m *mySql) FetchAllRows(tableName string) ([]map[string]interface{}, error) {
+	query := fmt.Sprintf("SELECT * FROM %s", tableName)
+	rows, err := m.client.Query(query)
+	if err != nil {
+		return nil, err
+	}
+	return sqlRowToMap(rows)
 }
