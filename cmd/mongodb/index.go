@@ -22,7 +22,7 @@ func init(){
 	MongodbCmd.Flags().Bool("srv", false, "use SRV connection format")
 	MongodbCmd.Flags().StringSliceP("collections", "c", []string{}, "name of the collections to dump")
 	MongodbCmd.Flags().StringSliceP("exclude-collections", "e", []string{}, "name of the collections to exclude")
-	MongodbCmd.Flags().StringP("output", "o", "json", "output type (json, bson, gzip)")
+	MongodbCmd.Flags().StringP("output", "o", "json", "output format of the dump (json, bson, gzip)")
 
 	MongodbCmd.MarkFlagRequired("db-name")
 	MongodbCmd.MarkFlagsRequiredTogether("username", "password")

@@ -25,5 +25,20 @@ CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` int
     |`--srv`||use SRV connection format|`false`|
     |`--collections`|`-c`|name of the collections to dump|`[]`|
     |`--exclude-collections`|`-e`|name of the collections to exclude|`[]`|
-    |`--output`|`-o`|output type `(json,bson,gzip)`|`json`|
+    |`--output`|`-o`|output format of the dump `(json,bson,gzip)`|`json`|
+    |`--help`|`-h`|help for the command|
+- `pg`
+
+    |flag|shorthand|description|default|
+    |---|---|---|---|
+    |`--username`|`-u`|username of the database|`postgres`|
+    |`--password`||password of the database|`123456`|
+    |`--host`||host of the database|`localhost`|
+    |`--port`|`-p`|port of the database|`5432`|
+    |`--db-name`|`-d`|database name||
+    |`--dir`||directory to store the dump|`dump`|
+    |`--schema`|`-s`|database schema|`public`|
+    |`--tables`|`-t`|name of the tables to dump|`[]`|
+    |`--exclude-tables`|`-e`|name of the tables to exclude|`[]`|
+    |`--output`|`-o`|output format of the dump `(json,csv,tsv)`|`json`|
     |`--help`|`-h`|help for the command|
