@@ -1,15 +1,56 @@
 package postgresql
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"os"
 
 	"github.com/spf13/cobra"
 
+	"github.com/vrutik2809/dbdump/utils"
 	"github.com/vrutik2809/dbdump/utils/postgresql"
 )
+
+const (
+	JSON string = "json"
+	CSV  string = "csv"
+	TSV  string = "tsv"
+)
+
+func isOutputValid(output string) bool {
+	validTypes := []string{JSON, CSV, TSV}	
+	for _, validType := range validTypes {
+		if output == validType {
+			return true
+		}
+	}
+	return false
+}
+
+func getFileExtension(output string) string {
+	switch output {
+		case JSON:
+			return ".json"
+		case CSV:
+			return ".csv"
+		case TSV:
+			return ".tsv"
+		default:
+			return ""
+	}
+}
+
+func writeToOutputFile(output string, result []map[string]interface{}, tableName string) error {
+	switch output {
+		case JSON:
+			return utils.MapArrayToJSONFile(result, tableName + getFileExtension(output))
+		case CSV:
+			return utils.MapArrayToCSVFile(result, tableName + getFileExtension(output))
+		case TSV:
+			return utils.MapArrayToTSVFile(result, tableName + getFileExtension(output))
+	}
+	return nil
+}
 
 func run(cmd *cobra.Command, args []string) {
 	username, _ := cmd.Flags().GetString("username")
@@ -21,6 +62,11 @@ func run(cmd *cobra.Command, args []string) {
 	schema, _ := cmd.Flags().GetString("schema")
 	dumpTables, _ := cmd.Flags().GetStringSlice("tables")
 	excludeTables, _ := cmd.Flags().GetStringSlice("exclude-tables")
+	output, _ := cmd.Flags().GetString("output")
+
+	if !isOutputValid(output) {
+		log.Fatal("invalid output type. valid types are: json, csv, tsv")
+	}
 
 	os.RemoveAll(outputDir)
 	os.Mkdir(outputDir, 0777)
@@ -91,19 +137,7 @@ func run(cmd *cobra.Command, args []string) {
 			log.Fatal(err)
 		}
 
-		jsonData, err := json.MarshalIndent(result, "", "\t")
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		file, err := os.Create(tableName + ".json")
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer file.Close()
-
-		_, err = file.Write(jsonData)
-		if err != nil {
+		if err := writeToOutputFile(output, result, tableName); err != nil {
 			log.Fatal(err)
 		}
 	}

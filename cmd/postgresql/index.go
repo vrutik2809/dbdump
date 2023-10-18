@@ -22,6 +22,7 @@ func init() {
 	PostgresqlCmd.Flags().StringP("schema", "s", "public", "name of the schema")
 	PostgresqlCmd.Flags().StringSliceP("tables", "t", []string{}, "name of the tables to dump")
 	PostgresqlCmd.Flags().StringSliceP("exclude-tables", "e", []string{}, "name of the tables to exclude")
+	PostgresqlCmd.Flags().StringP("output","o","json","output format of the dump (json, csv, tsv)")
 
 	PostgresqlCmd.MarkFlagRequired("db-name")
 }
