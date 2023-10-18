@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	_ "github.com/lib/pq"
+	"github.com/vrutik2809/dbdump/utils"
 )
 
 type postgresql struct {
@@ -50,26 +51,6 @@ func (p *postgresql) Ping() error {
 	return p.client.Ping()
 }
 
-func sqlRowToString(rows *sql.Rows) ([]string, error) {
-	defer rows.Close()
-
-	var result []string
-	for rows.Next() {
-		var tableName string
-		err := rows.Scan(&tableName)
-		if err != nil {
-			return nil, err
-		}
-		result = append(result, tableName)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
-}
-
 func (p *postgresql) FetchTables(schema string, dumpTables []string, excludeTables []string) ([]string, error) {
 	in := "'" + strings.Join(dumpTables, "','") + "'"
 	notIn := "'" + strings.Join(excludeTables, "','") + "'"
@@ -84,43 +65,7 @@ func (p *postgresql) FetchTables(schema string, dumpTables []string, excludeTabl
 	if err != nil {
 		return nil, err
 	}
-	return sqlRowToString(rows)
-}
-
-func sqlRowToMap(rows *sql.Rows) ([]map[string]interface{}, error) {
-	defer rows.Close()
-
-	var result []map[string]interface{}
-	for rows.Next() {
-		columns, err := rows.Columns()
-		if err != nil {
-			return nil, err
-		}
-
-		values := make([]interface{}, len(columns))
-		for i := range values {
-			values[i] = new(interface{})
-		}
-
-		err = rows.Scan(values...)
-		if err != nil {
-			return nil, err
-		}
-
-		rowData := make(map[string]interface{})
-		for i, column := range columns {
-			val := *(values[i].(*interface{}))
-			rowData[column] = val
-		}
-
-		result = append(result, rowData)
-	}
-
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-
-	return result, nil
+	return utils.SqlRowToString(rows)
 }
 
 func (p *postgresql) FetchAllRows(table string) ([]map[string]interface{}, error) {
@@ -129,5 +74,5 @@ func (p *postgresql) FetchAllRows(table string) ([]map[string]interface{}, error
 		return nil, err
 	}
 
-	return sqlRowToMap(rows)
+	return utils.SqlRowToMap(rows)
 }
