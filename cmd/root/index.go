@@ -7,6 +7,7 @@ import (
 
 	"github.com/vrutik2809/dbdump/cmd/mongodb"
 	"github.com/vrutik2809/dbdump/cmd/postgresql"
+	"github.com/vrutik2809/dbdump/cmd/mysql"
 )
 
 var RootCmd = &cobra.Command{
@@ -22,4 +23,5 @@ var RootCmd = &cobra.Command{
 func init() {
 	RootCmd.AddCommand(mongodb.MongodbCmd)
 	RootCmd.AddCommand(postgresql.PostgresqlCmd)
+	RootCmd.AddCommand(mysql.MysqlCmd)
 }
