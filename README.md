@@ -1,7 +1,6 @@
 # DBDump
 
-<!-- set a logo in center -->
-![logo](./logo.png)
+<center><img src="./logo.png"  alt="logo" width="200" hight="200"></center>
 
 CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` into multiple formats like `json`, `tsv`, `csv`
 
