@@ -27,4 +27,3 @@ CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` int
     |`--exclude-collections`|`-e`|name of the collections to exclude|`[]`|
     |`--output`|`-o`|output type `(json,bson,gzip)`|`json`|
     |`--help`|`-h`|help for the command|
-
