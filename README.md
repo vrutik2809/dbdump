@@ -11,7 +11,7 @@ CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` int
 | --- | --- |
 |`mongodb`| command for dumping MongoDB database |
 |`pg`| command for dumping PostgreSQL database |
-|`mysql`| command for dumping PostgreSQL database |
+|`mysql`| command for dumping MySQL database |
 
 ## Command Options
 
