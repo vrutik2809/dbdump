@@ -11,7 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type mongoDB struct {
+type MongoDB struct {
 	username string
 	password string
 	host string
@@ -23,8 +23,8 @@ type mongoDB struct {
 	cancel context.CancelFunc
 }
 
-func NewMongoDB(username string, password string, host string, port uint, dbName string,isSRV bool) *mongoDB {
-	return &mongoDB{
+func NewMongoDB(username string, password string, host string, port uint, dbName string,isSRV bool) *MongoDB {
+	return &MongoDB{
 		username: username,
 		password: password,
 		host: host,
@@ -37,7 +37,7 @@ func NewMongoDB(username string, password string, host string, port uint, dbName
 	}
 }
 
-func (m *mongoDB) GetURI() string {
+func (m *MongoDB) GetURI() string {
 	var port string
 	if m.port == 0 {
 		port = ""
@@ -59,7 +59,7 @@ func (m *mongoDB) GetURI() string {
 	return prefix + m.username + ":" + m.password + "@" + m.host + port
 }
 
-func (m *mongoDB) Connect() error {
+func (m *MongoDB) Connect() error {
 	uri := m.GetURI()
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -75,7 +75,7 @@ func (m *mongoDB) Connect() error {
 	return nil
 }
 
-func (m *mongoDB) Close() {
+func (m *MongoDB) Close() {
 	defer m.cancel()
 
 	defer func() {
@@ -85,19 +85,19 @@ func (m *mongoDB) Close() {
 	}()
 }
 
-func (m *mongoDB) Ping() error {
+func (m *MongoDB) Ping() error {
 	err := m.client.Ping(m.ctx, nil)
 
 	return err
 }
 
-func (m *mongoDB) FetchCollections(filter interface{}) ([]string, error) {
+func (m *MongoDB) FetchCollections(filter interface{}) ([]string, error) {
 	collections, err := m.client.Database(m.dbName).ListCollectionNames(m.ctx, filter)
 
 	return collections, err
 }
 
-func (m *mongoDB) FetchAllDocuments(collection string) ([]bson.D, error) {
+func (m *MongoDB) FetchAllDocuments(collection string) ([]bson.D, error) {
 	cursor, err := m.client.Database(m.dbName).Collection(collection).Find(m.ctx, bson.D{})
 	if err != nil {
 		return nil, err
@@ -128,4 +128,22 @@ func CollectionFilter(collections []string,collectionsExclude []string) bson.D {
 	}
 
 	return filter
+}
+
+func (m *MongoDB) CreateCollection(collection string) error {
+	err := m.client.Database(m.dbName).CreateCollection(m.ctx, collection)
+
+	return err
+}
+
+func (m *MongoDB) DropCollection(collection string) error {
+	err := m.client.Database(m.dbName).Collection(collection).Drop(m.ctx)
+	
+	return err
+}
+
+func (m *MongoDB) InsertDocuments(collection string, documents []interface{}) error {
+	_, err := m.client.Database(m.dbName).Collection(collection).InsertMany(m.ctx, documents)
+	
+	return err
 }

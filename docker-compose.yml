@@ -1,0 +1,31 @@
+version: '3.9'
+
+services:
+  mongo-db:
+    image: mongo
+    container_name: mongo-db
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=admin123
+      - MONGO_INITDB_DATABASE=test
+    ports:
+      - 27019:27017
+    
+  pg-db:
+    image: postgres
+    container_name: pg-db
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin123
+      - POSTGRES_DB=test
+    ports:
+      - 5433:5432
+
+  mysql-db:
+    image: mysql
+    container_name: mysql-db
+    environment:
+      - MYSQL_ROOT_PASSWORD=admin123
+      - MYSQL_DATABASE=test
+    ports:
+      - 3307:3306
