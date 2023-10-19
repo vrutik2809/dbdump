@@ -45,4 +45,4 @@ CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` int
     |`--output`|`-o`|output format of the dump `(json,csv,tsv)`|`json`|
     |`--help`|`-h`|help for the command|
 
-> appart from these options you can also pass the `--help` flag to get help for the command
+> You can always pass the `--help` flag to get help for the command
