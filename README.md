@@ -11,6 +11,7 @@ CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` int
 | --- | --- |
 |`mongodb`| command for dumping MongoDB database |
 |`pg`| command for dumping PostgreSQL database |
+|`mysql`| command for dumping PostgreSQL database |
 
 ## Command Options
 
@@ -29,7 +30,7 @@ CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` int
     |`--exclude-collections`|`-e`|name of the collections to exclude|`[]`|
     |`--output`|`-o`|output format of the dump `(json,bson,gzip)`|`json`|
     |`--help`|`-h`|help for the command|
-- `pg`
+- common for `pg` and `mysql`
 
     |flag|shorthand|description|default|
     |---|---|---|---|
@@ -39,8 +40,9 @@ CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` int
     |`--port`|`-p`|port of the database|`5432`|
     |`--db-name`|`-d`|database name||
     |`--dir`||directory to store the dump|`dump`|
-    |`--schema`|`-s`|database schema|`public`|
     |`--tables`|`-t`|name of the tables to dump|`[]`|
     |`--exclude-tables`|`-e`|name of the tables to exclude|`[]`|
     |`--output`|`-o`|output format of the dump `(json,csv,tsv)`|`json`|
     |`--help`|`-h`|help for the command|
+
+> appart from these options you can also pass the `--help` flag to get help for the command
