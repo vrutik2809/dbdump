@@ -1,0 +1,48 @@
+name: CLI Testing
+on:
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    name: CLI Testing
+    runs-on: ubuntu-latest
+
+    services:
+      mongo-db:
+        image: mongo
+        env:
+          MONGO_INITDB_ROOT_USERNAME: admin
+          MONGO_INITDB_ROOT_PASSWORD: admin123
+          MONGO_INITDB_DATABASE: test
+        ports:
+          - 27019:27017
+
+      pg-db:
+        image: postgres
+        env:
+          POSTGRES_USER: admin
+          POSTGRES_PASSWORD: admin123
+          POSTGRES_DB: test
+        ports:
+          - 5433:5432
+
+      mysql-db:
+        image: mysql
+        env:
+          MYSQL_ROOT_PASSWORD: admin123
+          MYSQL_DATABASE: test
+        ports:
+          - 5433:5432
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.21.1
+
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run tests
+        run: go test ./test/... -v
