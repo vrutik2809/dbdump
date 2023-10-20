@@ -6,6 +6,7 @@
     <img src="https://img.shields.io/github/issues-pr/vrutik2809/dbdump?logo=git"  alt="pr_badge">
     <img src="https://img.shields.io/github/actions/workflow/status/vrutik2809/dbdump/run_tests.yml?label=GitHub%20Workflows&logo=github"  alt="pr_badge">
 </div>
+<br>
 
 
 CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` into multiple formats like `json`, `tsv`, `csv`
