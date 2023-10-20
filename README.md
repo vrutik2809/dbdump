@@ -1,6 +1,6 @@
 # DBDump
 
-<div align="center"><img src="./logo.png"  alt="logo" width="200" hight="200"></div>
+<div align="center"><img src="./other/logo-name.png"  alt="logo"></div>
 <div align="center">
     <img src="https://img.shields.io/github/issues/vrutik2809/dbdump"  alt="issue_badge">
     <img src="https://img.shields.io/github/issues-pr/vrutik2809/dbdump?logo=git"  alt="pr_badge">
