@@ -1,6 +1,12 @@
 # DBDump
 
-<p align="center"><img src="./logo.png"  alt="logo" width="200" hight="200"></p>
+<div align="center"><img src="./logo.png"  alt="logo" width="200" hight="200"></div>
+<div align="center">
+    <img src="https://img.shields.io/github/issues/vrutik2809/dbdump"  alt="issue_badge">
+    <img src="https://img.shields.io/github/issues-pr/vrutik2809/dbdump?logo=git"  alt="pr_badge">
+    <img src="https://img.shields.io/github/actions/workflow/status/vrutik2809/dbdump/run_tests.yml?label=GitHub%20Workflows&logo=github"  alt="pr_badge">
+</div>
+
 
 CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` into multiple formats like `json`, `tsv`, `csv`
 
