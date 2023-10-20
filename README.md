@@ -48,6 +48,25 @@ sudo mv darwin_amd64_dbdump /usr/local/bin/dbdump
 
 </details>
 
+## Usage Examples
+
+```bash
+# dump all mongodb collections to json
+dbdump mongodb -u admin --password admin123 --host localhost -p 27017 -d test
+
+# dump specific mongodb collections to bson
+dbdump mongodb -u admin --password admin123 --host localhost -p 27017 -d test -c "users,posts" -o bson
+
+# dump all postgresql tables to csv
+dbdump pg -u postgres --password 123456 --host localhost -p 5432 -d test -o csv
+
+# dump all postgresql tables excluding specific tables to json
+dbdump pg -u postgres --password 123456 --host localhost -p 5432 -d test -e users,photos -o json
+
+# dump all mysql tables to tsv
+dbdump mysql -u root --password root --host localhost -p 3306 -d test -o tsv
+
+```
 
 ## Commands
 
