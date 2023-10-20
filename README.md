@@ -8,8 +8,53 @@
 </div>
 <br>
 
-
 CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` into multiple formats like `json`, `tsv`, `csv`
+
+## Installation Guide
+
+## Linux
+
+1. **Download the binary:**
+
+    ```bash
+    wget https://github.com/vrutik2809/dbdump/releases/download/latest/linux_amd64_dbdump
+    ```
+
+2. **Make the binary executable:**
+
+    ```bash
+    chmod +x linux_amd64_dbdump
+    ```
+
+3. **Move the binary to the desired location (optional):**
+
+    ```bash
+    sudo mv linux_amd64_dbdump /usr/local/bin/dbdump
+    ```
+
+## MacOS
+
+1. **Download the binary:**
+
+   ```bash
+   curl https://github.com/vrutik2809/dbdump/releases/download/latest/darwin_amd64_dbdump
+   ```
+
+2. **Make the binary executable:**
+
+    ```bash
+    chmod +x darwin_amd64_dbdump
+    ```
+
+3. **Move the binary to the desired location (optional):**
+
+    ```bash
+    sudo mv darwin_amd64_dbdump /usr/local/bin/dbdump
+    ```
+
+## Windows
+
+1. **Download the binary:** by clicking [here](https://github.com/vrutik2809/dbdump/releases/download/latest/windows_amd64_dbdump.exe)
 
 ## Commands
 
