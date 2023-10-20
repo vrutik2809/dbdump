@@ -1,4 +1,6 @@
 <div align="center"><img src="./other/logo-name.png"  alt="logo" width=450px></div>
+<div align="center"><b>CLI tool for dumping various databases in multiple formats.</b></div>
+<br>
 <div align="center">
     <img src="https://img.shields.io/github/issues/vrutik2809/dbdump"  alt="issue_badge">
     <img src="https://img.shields.io/github/issues-pr/vrutik2809/dbdump?logo=git"  alt="pr_badge">
