@@ -12,7 +12,8 @@ CLI tool for dumping various databases like `MongoDB`, `PostgreSQL`, `MySQL` int
 
 ## Installation Guide
 
-## Linux
+<details open>
+<summary>Linux</summary>
 
 ```bash
 wget https://github.com/vrutik2809/dbdump/releases/download/latest/linux_amd64_dbdump
@@ -24,7 +25,9 @@ chmod +x linux_amd64_dbdump
 sudo mv linux_amd64_dbdump /usr/local/bin/dbdump
 ```
 
-## MacOS
+</details>
+<details>
+<summary>MacOS</summary>
 
 ```bash
 curl https://github.com/vrutik2809/dbdump/releases/download/latest/darwin_amd64_dbdump
@@ -36,9 +39,15 @@ chmod +x darwin_amd64_dbdump
 sudo mv darwin_amd64_dbdump /usr/local/bin/dbdump
 ```
 
-## Windows
+</details>
+
+<details>
+<summary>Windows</summary>
 
 **Download the binary:** by clicking [here](https://github.com/vrutik2809/dbdump/releases/download/latest/windows_amd64_dbdump.exe)
+
+</details>
+
 
 ## Commands
 
