@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/spf13/cobra"
 	"go.mongodb.org/mongo-driver/bson"
@@ -55,6 +56,20 @@ func dumpToFile(bsonDArray []bson.D, collection string, output string) error {
 	}
 }
 
+func dumpCollection(wg *sync.WaitGroup, mongo *mongodb.MongoDB, collection string, output string) {
+	defer wg.Done()
+	fmt.Println("dumping collection:", collection)
+
+	bsonDArray, err := mongo.FetchAllDocuments(collection)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if err := dumpToFile(bsonDArray, collection, output); err != nil {
+		log.Fatal(err)
+	}
+}
+
 
 func run(cmd *cobra.Command, args []string) {
 	username, _ := cmd.Flags().GetString("username")
@@ -98,16 +113,14 @@ func run(cmd *cobra.Command, args []string) {
 	os.Mkdir(outputDir, 0777)
 	os.Chdir(outputDir)
 
+	var wg sync.WaitGroup
+
 	for _, collection := range collections {
-		fmt.Println("dumping collection:", collection)
-
-		bsonDArray, err := mongo.FetchAllDocuments(collection)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		if err := dumpToFile(bsonDArray, collection, output); err != nil {
-			log.Fatal(err)
-		}
+		wg.Add(1)
+		go dumpCollection(&wg, mongo, collection, output)
 	}
+
+	wg.Wait()
+
+	fmt.Println("dumped collections successfully")
 }
