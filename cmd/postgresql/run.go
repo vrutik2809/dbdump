@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/spf13/cobra"
 
@@ -18,7 +19,7 @@ const (
 )
 
 func isOutputValid(output string) bool {
-	validTypes := []string{JSON, CSV, TSV}	
+	validTypes := []string{JSON, CSV, TSV}
 	for _, validType := range validTypes {
 		if output == validType {
 			return true
@@ -43,13 +44,25 @@ func getFileExtension(output string) string {
 func writeToOutputFile(output string, result []map[string]interface{}, tableName string) error {
 	switch output {
 		case JSON:
-			return utils.MapArrayToJSONFile(result, tableName + getFileExtension(output))
+			return utils.MapArrayToJSONFile(result, tableName+getFileExtension(output))
 		case CSV:
-			return utils.MapArrayToCSVFile(result, tableName + getFileExtension(output))
+			return utils.MapArrayToCSVFile(result, tableName+getFileExtension(output))
 		case TSV:
-			return utils.MapArrayToTSVFile(result, tableName + getFileExtension(output))
+			return utils.MapArrayToTSVFile(result, tableName+getFileExtension(output))
 	}
 	return nil
+}
+
+func dumpTable(wg *sync.WaitGroup, pg *postgresql.PostgreSQL, table string, output string) {
+	defer wg.Done()
+	fmt.Println("dumping table: ", table)
+	rows, err := pg.FetchAllRows(table)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := writeToOutputFile(output, rows, table); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func run(cmd *cobra.Command, args []string) {
@@ -90,14 +103,14 @@ func run(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
+	var wg sync.WaitGroup
+
 	for _, table := range tables {
-		fmt.Println("dumping table: ", table)
-		rows, err := pg.FetchAllRows(table)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if err := writeToOutputFile(output, rows, table); err != nil {
-			log.Fatal(err)
-		}
+		wg.Add(1)
+		go dumpTable(&wg, pg, table, output)
 	}
+
+	wg.Wait()
+
+	fmt.Println("dumped tables successfully")
 }
