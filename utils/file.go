@@ -4,7 +4,6 @@ import (
 	"compress/gzip"
 	"encoding/json"
 	"os"
-	"strconv"
 	"strings"
 
 	"go.mongodb.org/mongo-driver/bson"
@@ -93,21 +92,6 @@ func MapArrayToJSONFile(mp []map[string]interface{}, filename string) error {
 	return err
 }
 
-func interfaceToString(itf interface{}) string {
-	switch v := itf.(type) {
-		case int64:
-			return strconv.FormatInt(v, 10)
-		case string:
-			return v
-		case float64:
-			return strconv.FormatFloat(v, 'f', -1, 64)
-		case bool:
-			return strconv.FormatBool(v)
-		default:
-			return ""
-	}
-}
-
 func stringToCSVRow(str []string) string {
 	return `"` + strings.Join(str, `","`) + `"` + "\n"
 }
@@ -128,7 +112,7 @@ func MapArrayToCSVFile(mp []map[string]interface{}, filename string) error {
 	for _, row := range mp {
 		rowData := []string{}
 		for _, key := range header {
-			str := interfaceToString(row[key])
+			str := InterfaceToString(row[key])
 			rowData = append(rowData, str)
 		}
 		file.WriteString(stringToCSVRow(rowData))
@@ -157,7 +141,7 @@ func MapArrayToTSVFile(mp []map[string]interface{}, filename string) error {
 	for _, row := range mp {
 		rowData := []string{}
 		for _, key := range header {
-			str := interfaceToString(row[key])
+			str := InterfaceToString(row[key])
 			rowData = append(rowData, str)
 		}
 		file.WriteString(stringToTSVRow(rowData))
