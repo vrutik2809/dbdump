@@ -9,7 +9,7 @@ import (
 	"github.com/vrutik2809/dbdump/utils"
 )
 
-type postgresql struct {
+type PostgreSQL struct {
 	username string
 	password string
 	host     string
@@ -18,8 +18,8 @@ type postgresql struct {
 	client   *sql.DB
 }
 
-func NewPostgreSQL(username string, password string, host string, port uint, dbName string) *postgresql {
-	return &postgresql{
+func NewPostgreSQL(username string, password string, host string, port uint, dbName string) *PostgreSQL {
+	return &PostgreSQL{
 		username: username,
 		password: password,
 		host:     host,
@@ -29,11 +29,11 @@ func NewPostgreSQL(username string, password string, host string, port uint, dbN
 	}
 }
 
-func (p *postgresql) GetURI() string {
+func (p *PostgreSQL) GetURI() string {
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable", p.host, p.port, p.username, p.password, p.dbName)
 }
 
-func (p *postgresql) Connect() error {
+func (p *PostgreSQL) Connect() error {
 	uri := p.GetURI()
 	db, err := sql.Open("postgres", uri)
 	if err != nil {
@@ -43,15 +43,15 @@ func (p *postgresql) Connect() error {
 	return nil
 }
 
-func (p *postgresql) Close() error {
+func (p *PostgreSQL) Close() error {
 	return p.client.Close()
 }
 
-func (p *postgresql) Ping() error {
+func (p *PostgreSQL) Ping() error {
 	return p.client.Ping()
 }
 
-func (p *postgresql) FetchTables(schema string, dumpTables []string, excludeTables []string) ([]string, error) {
+func (p *PostgreSQL) FetchTables(schema string, dumpTables []string, excludeTables []string) ([]string, error) {
 	in := "'" + strings.Join(dumpTables, "','") + "'"
 	notIn := "'" + strings.Join(excludeTables, "','") + "'"
 	query := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", schema)
@@ -68,7 +68,7 @@ func (p *postgresql) FetchTables(schema string, dumpTables []string, excludeTabl
 	return utils.SqlRowToString(rows)
 }
 
-func (p *postgresql) FetchAllRows(table string) ([]map[string]interface{}, error) {
+func (p *PostgreSQL) FetchAllRows(table string) ([]map[string]interface{}, error) {
 	rows, err := p.client.Query("SELECT * FROM " + table)
 	if err != nil {
 		return nil, err
@@ -76,3 +76,48 @@ func (p *postgresql) FetchAllRows(table string) ([]map[string]interface{}, error
 
 	return utils.SqlRowToMap(rows)
 }
+
+
+func (p *PostgreSQL) ExecuteQuery(query string) error {
+	_, err := p.client.Exec(query)
+	return err
+}
+
+// func (p *PostgreSQL) CreateTable(tableQuery string) error {
+// 	_, err := p.client.Exec(tableQuery)
+// 	return err
+// }
+
+// func (p *PostgreSQL) DropTable(table string) error {
+// 	_, err := p.client.Exec("DROP TABLE " + table)
+// 	return err
+// }
+
+// func (p *PostgreSQL) getColumnNames(table string) ([]string, error) {
+// 	rows, err := p.client.Query("SELECT column_name FROM information_schema.columns WHERE table_name = '" + table + "'")
+// 	if err != nil {
+// 		return nil, err
+// 	}
+// 	return utils.SqlRowToString(rows)
+// }
+
+// func (p *PostgreSQL) getInsertQuery(table string, rows []interface{}) (string, error) {
+// 	columns, err := p.getColumnNames(table)
+// 	if err != nil {
+// 		return "", err
+// 	}
+// 	values := []string{}
+// 	for _, row := range rows {
+// 		values = append(values, utils.InterfaceToSQLInsertRowString(row))
+// 	}
+// 	return fmt.Sprintf("INSERT INTO %s (%s) VALUES (%s)", table, strings.Join(columns, ","), strings.Join(values, ",")), nil
+// }
+
+// func (p *PostgreSQL) InsertRow(table string, row []interface{}) error {
+// 	query, err := p.getInsertQuery(table, row)
+// 	if err != nil {
+// 		return err
+// 	}
+// 	_, err = p.client.Exec(query)
+// 	return err
+// }
