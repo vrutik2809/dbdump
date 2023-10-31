@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/cheggaaa/pb/v3"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
@@ -18,13 +19,20 @@ func BsonDArrayToJsonFile(bsonDArray []bson.D, filename string) error {
 
 	result := []map[string]interface{}{}
 
+	count := len(bsonDArray)
+
+	bar := pb.New(count).SetTemplateString(GetBarTemplate("collection", GetName(filename))).SetMaxWidth(80).Start()
+
 	for _, bsonD := range bsonDArray {
 		res, err := BsonDToMap(bsonD)
 		if err != nil {
 			return err
 		}
 		result = append(result, res)
+		bar.Increment()
 	}
+
+	bar.Finish()
 
 	jsonData, err := json.MarshalIndent(result, "", "\t")
 	if err != nil {

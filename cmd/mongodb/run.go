@@ -58,7 +58,6 @@ func dumpToFile(bsonDArray []bson.D, collection string, output string) error {
 
 func dumpCollection(wg *sync.WaitGroup, mongo *mongodb.MongoDB, collection string, output string) {
 	defer wg.Done()
-	fmt.Println("dumping collection:", collection)
 
 	bsonDArray, err := mongo.FetchAllDocuments(collection)
 	if err != nil {
