@@ -10,7 +10,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func BsonDArrayToJsonFile(bsonDArray []bson.D, filename string) error {
+func BsonDArrayToJsonFile(bsonDArray []bson.D, bar *pb.ProgressBar, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -21,7 +21,7 @@ func BsonDArrayToJsonFile(bsonDArray []bson.D, filename string) error {
 
 	count := len(bsonDArray)
 
-	bar := pb.New(count).SetTemplateString(GetBarTemplate("collection", GetName(filename))).SetMaxWidth(80).Start()
+	bar.SetTotal(int64(count))
 
 	for _, bsonD := range bsonDArray {
 		res, err := BsonDToMap(bsonD)
@@ -30,6 +30,11 @@ func BsonDArrayToJsonFile(bsonDArray []bson.D, filename string) error {
 		}
 		result = append(result, res)
 		bar.Increment()
+	}
+
+	if count == 0 {
+		bar.SetTotal(1)
+		bar.SetCurrent(1)
 	}
 
 	bar.Finish()
@@ -44,7 +49,7 @@ func BsonDArrayToJsonFile(bsonDArray []bson.D, filename string) error {
 	return nil
 }
 
-func BsonDArrayToFile(bsonDArray []bson.D, filename string) error {
+func BsonDArrayToFile(bsonDArray []bson.D, bar *pb.ProgressBar, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -53,7 +58,7 @@ func BsonDArrayToFile(bsonDArray []bson.D, filename string) error {
 
 	count := len(bsonDArray)
 
-	bar := pb.New(count).SetTemplateString(GetBarTemplate("collection", GetName(filename))).SetMaxWidth(80).Start()
+	bar.SetTotal(int64(count))
 
 	for _, bsonD := range bsonDArray {
 		data, err := bson.Marshal(bsonD)
@@ -64,12 +69,17 @@ func BsonDArrayToFile(bsonDArray []bson.D, filename string) error {
 		bar.Increment()
 	}
 
+	if count == 0 {
+		bar.SetTotal(1)
+		bar.SetCurrent(1)
+	}
+
 	bar.Finish()
 
 	return nil
 }
 
-func BsonDArrayToGzipFile(bsonDArray []bson.D, filename string) error {
+func BsonDArrayToGzipFile(bsonDArray []bson.D, bar *pb.ProgressBar, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -81,7 +91,7 @@ func BsonDArrayToGzipFile(bsonDArray []bson.D, filename string) error {
 
 	count := len(bsonDArray)
 
-	bar := pb.New(count).SetTemplateString(GetBarTemplate("collection", GetName(filename))).SetMaxWidth(80).Start()
+	bar.SetTotal(int64(count))
 
 	for _, bsonD := range bsonDArray {
 		data, err := bson.Marshal(bsonD)
@@ -90,6 +100,11 @@ func BsonDArrayToGzipFile(bsonDArray []bson.D, filename string) error {
 		}
 		gzipWriter.Write(data)
 		bar.Increment()
+	}
+
+	if count == 0 {
+		bar.SetTotal(1)
+		bar.SetCurrent(1)
 	}
 
 	bar.Finish()
@@ -110,7 +125,7 @@ func MapArrayToJSONFile(mp []map[string]interface{}, filename string) error {
 	defer file.Close()
 
 	_, err = file.Write(jsonData)
-	
+
 	return err
 }
 

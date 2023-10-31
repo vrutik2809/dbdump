@@ -6,6 +6,7 @@ import (
 	"os"
 	"sync"
 
+	"github.com/cheggaaa/pb/v3"
 	"github.com/spf13/cobra"
 	"go.mongodb.org/mongo-driver/bson"
 
@@ -42,21 +43,21 @@ func getFileExtension(output string) string {
 	}
 }
 
-func dumpToFile(bsonDArray []bson.D, collection string, output string) error {
+func dumpToFile(bsonDArray []bson.D, bar *pb.ProgressBar, collection string, output string) error {
 	filename := collection + getFileExtension(output)
 	switch output {
 		case JSON:
-			return utils.BsonDArrayToJsonFile(bsonDArray, filename)
+			return utils.BsonDArrayToJsonFile(bsonDArray, bar, filename)
 		case BSON:
-			return utils.BsonDArrayToFile(bsonDArray, filename)
+			return utils.BsonDArrayToFile(bsonDArray, bar, filename)
 		case GZIP:
-			return utils.BsonDArrayToGzipFile(bsonDArray, filename)
-		default:
-			return nil
+			return utils.BsonDArrayToGzipFile(bsonDArray, bar, filename)
+	default:
+		return nil
 	}
 }
 
-func dumpCollection(wg *sync.WaitGroup, mongo *mongodb.MongoDB, collection string, output string) {
+func dumpCollection(wg *sync.WaitGroup, bar *pb.ProgressBar, mongo *mongodb.MongoDB, collection string, output string) {
 	defer wg.Done()
 
 	bsonDArray, err := mongo.FetchAllDocuments(collection)
@@ -64,11 +65,10 @@ func dumpCollection(wg *sync.WaitGroup, mongo *mongodb.MongoDB, collection strin
 		log.Fatal(err)
 	}
 
-	if err := dumpToFile(bsonDArray, collection, output); err != nil {
+	if err := dumpToFile(bsonDArray, bar, collection, output); err != nil {
 		log.Fatal(err)
 	}
 }
-
 
 func run(cmd *cobra.Command, args []string) {
 	username, _ := cmd.Flags().GetString("username")
@@ -85,7 +85,7 @@ func run(cmd *cobra.Command, args []string) {
 	if !isOutputTypeValid(output) {
 		log.Fatal("invalid output type. valid types are: json, bson, gzip")
 	}
-	
+
 	mongo := mongodb.NewMongoDB(username, password, host, port, dbName, isSRV)
 
 	if err := mongo.Connect(); err != nil {
@@ -113,13 +113,23 @@ func run(cmd *cobra.Command, args []string) {
 	os.Chdir(outputDir)
 
 	var wg sync.WaitGroup
+	
+	bars := utils.GetBars(collections, "collection")
 
-	for _, collection := range collections {
+	barPool, err := pb.StartPool(bars...)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for idx, collection := range collections {
 		wg.Add(1)
-		go dumpCollection(&wg, mongo, collection, output)
+		go dumpCollection(&wg, bars[idx], mongo, collection, output)
 	}
 
 	wg.Wait()
+
+	barPool.Stop()
 
 	fmt.Println("dumped collections successfully")
 }
