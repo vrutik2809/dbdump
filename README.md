@@ -70,6 +70,12 @@ dbdump mysql -u root --password root --host localhost -p 3306 -d test -o tsv
 
 ```
 
+## Output format
+
+- MongoDB - `json`, `bson`, `gzip`
+- PostgreSQL - `json`, `csv`, `tsv`
+- MySQL - `json`, `csv`, `tsv`
+
 ## Commands
 
 <!-- create a table  -->
