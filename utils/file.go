@@ -51,13 +51,20 @@ func BsonDArrayToFile(bsonDArray []bson.D, filename string) error {
 	}
 	defer file.Close()
 
+	count := len(bsonDArray)
+
+	bar := pb.New(count).SetTemplateString(GetBarTemplate("collection", GetName(filename))).SetMaxWidth(80).Start()
+
 	for _, bsonD := range bsonDArray {
 		data, err := bson.Marshal(bsonD)
 		if err != nil {
 			return err
 		}
 		file.Write(data)
+		bar.Increment()
 	}
+
+	bar.Finish()
 
 	return nil
 }
@@ -72,13 +79,20 @@ func BsonDArrayToGzipFile(bsonDArray []bson.D, filename string) error {
 	gzipWriter := gzip.NewWriter(file)
 	defer gzipWriter.Close()
 
+	count := len(bsonDArray)
+
+	bar := pb.New(count).SetTemplateString(GetBarTemplate("collection", GetName(filename))).SetMaxWidth(80).Start()
+
 	for _, bsonD := range bsonDArray {
 		data, err := bson.Marshal(bsonD)
 		if err != nil {
 			return err
 		}
 		gzipWriter.Write(data)
+		bar.Increment()
 	}
+
+	bar.Finish()
 
 	return nil
 }
