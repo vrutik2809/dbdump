@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"sync"
 
 	"github.com/spf13/cobra"
 
@@ -52,6 +53,18 @@ func writeToOutputFile(output string, result []map[string]interface{}, tableName
 	return nil
 }
 
+func dumpTable(wg *sync.WaitGroup, msq *mysql.MySQL, table string, output string) {
+	defer wg.Done()
+	fmt.Println("dumping table: ", table)
+	rows, err := msq.FetchAllRows(table)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if err := writeToOutputFile(output, rows, table); err != nil {
+		log.Fatal(err)
+	}
+}
+
 func run(cmd *cobra.Command, args []string) {
 	username, _ := cmd.Flags().GetString("username")
 	password, _ := cmd.Flags().GetString("password")
@@ -90,15 +103,15 @@ func run(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
+	var wg sync.WaitGroup
+
 	for _, table := range tables {
-		fmt.Println("dumping table: ", table)
-		rows, err := msq.FetchAllRows(table)
-		if err != nil {
-			log.Fatal(err)
-		}
-		if err := writeToOutputFile(output, rows, table); err != nil {
-			log.Fatal(err)
-		}
+		wg.Add(1)
+		go dumpTable(&wg, msq, table, output)
 	}
+
+	wg.Wait()
+
+	fmt.Println("dumped tables successfully")
 
 }
