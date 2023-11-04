@@ -9,7 +9,7 @@ import (
 	"github.com/vrutik2809/dbdump/utils"
 )
 
-type mySql struct {
+type MySQL struct {
 	username string
 	password string
 	host     string
@@ -18,8 +18,8 @@ type mySql struct {
 	client   *sql.DB
 }
 
-func NewMySQL(username string, password string, host string, port uint, dbName string) *mySql {
-	return &mySql{
+func NewMySQL(username string, password string, host string, port uint, dbName string) *MySQL {
+	return &MySQL{
 		username: username,
 		password: password,
 		host:     host,
@@ -29,11 +29,11 @@ func NewMySQL(username string, password string, host string, port uint, dbName s
 	}
 }
 
-func (m *mySql) GetURI() string {
+func (m *MySQL) GetURI() string {
 	return fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", m.username, m.password, m.host, m.port, m.dbName)
 }
 
-func (m *mySql) Connect() error {
+func (m *MySQL) Connect() error {
 	db, err := sql.Open("mysql", m.GetURI())
 	if err != nil {
 		return err
@@ -42,15 +42,15 @@ func (m *mySql) Connect() error {
 	return nil
 }
 
-func (m *mySql) Close() error {
+func (m *MySQL) Close() error {
 	return m.client.Close()
 }
 
-func (m *mySql) Ping() error {
+func (m *MySQL) Ping() error {
 	return m.client.Ping()
 }
 
-func (m *mySql) FetchTables(dumpTables []string, excludeTables []string) ([]string, error) {
+func (m *MySQL) FetchTables(dumpTables []string, excludeTables []string) ([]string, error) {
 	in := "'" + strings.Join(dumpTables, "','") + "'"
 	notIn := "'" + strings.Join(excludeTables, "','") + "'"
 	query := fmt.Sprintf("SELECT table_name FROM information_schema.tables WHERE table_schema = '%s'", m.dbName)
@@ -67,11 +67,16 @@ func (m *mySql) FetchTables(dumpTables []string, excludeTables []string) ([]stri
 	return utils.SqlRowToString(rows)
 }
 
-func (m *mySql) FetchAllRows(tableName string) ([]map[string]interface{}, error) {
+func (m *MySQL) FetchAllRows(tableName string) ([]map[string]interface{}, error) {
 	query := fmt.Sprintf("SELECT * FROM %s", tableName)
 	rows, err := m.client.Query(query)
 	if err != nil {
 		return nil, err
 	}
 	return utils.SqlRowToMap(rows)
+}
+
+func (p *MySQL) ExecuteQuery(query string) error {
+	_, err := p.client.Exec(query)
+	return err
 }
