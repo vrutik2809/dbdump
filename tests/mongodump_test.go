@@ -76,7 +76,7 @@ func (suite *MongoDumpTestSuite) TearDownSuite() {
 func (suite *MongoDumpTestSuite) TestJsonDump() {
 	dumpDir := "../dump/"
 	ext := ".json"
-	cmd := exec.Command("go", "run", "../main.go", "mongodb", "--username", "admin", "--password", "admin123", "--host", "localhost", "--port", "27019", "--db-name", "test", "--dir", dumpDir)
+	cmd := exec.Command("go", "run", "../main.go", "mongodb", "--username", "admin", "--password", "admin123", "--host", "localhost", "--port", "27019", "--db-name", "test", "--dir", dumpDir,"--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "mongodump failed")
 
@@ -91,7 +91,7 @@ func (suite *MongoDumpTestSuite) TestJsonDump() {
 func (suite *MongoDumpTestSuite) TestBsonDump() {
 	dumpDir := "../dump/"
 	ext := ".bson"
-	cmd := exec.Command("go", "run", "../main.go", "mongodb", "--username", "admin", "--password", "admin123", "--host", "localhost", "--port", "27019", "--db-name", "test", "--dir", dumpDir, "--output", "bson")
+	cmd := exec.Command("go", "run", "../main.go", "mongodb", "--username", "admin", "--password", "admin123", "--host", "localhost", "--port", "27019", "--db-name", "test", "--dir", dumpDir, "--output", "bson", "--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "mongodump failed")
 
@@ -106,7 +106,7 @@ func (suite *MongoDumpTestSuite) TestBsonDump() {
 func (suite *MongoDumpTestSuite) TestGZIPDump() {
 	dumpDir := "../dump/"
 	ext := ".gz"
-	cmd := exec.Command("go", "run", "../main.go", "mongodb", "--username", "admin", "--password", "admin123", "--host", "localhost", "--port", "27019", "--db-name", "test", "--dir", dumpDir, "--output", "gzip")
+	cmd := exec.Command("go", "run", "../main.go", "mongodb", "--username", "admin", "--password", "admin123", "--host", "localhost", "--port", "27019", "--db-name", "test", "--dir", dumpDir, "--output", "gzip", "--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "mongodump failed")
 
@@ -123,7 +123,7 @@ func (suite *MongoDumpTestSuite) TestCollectionDump() {
 	dumpDir := "../dump/"
 	ext := ".json"
 	dumpCollections := []string{"users", "photos"}
-	cmd := exec.Command("go", "run", "../main.go", "mongodb", "--username", "admin", "--password", "admin123", "--host", "localhost", "--port", "27019", "--db-name", "test", "--dir", dumpDir, "--collections", strings.Join(dumpCollections, ","))
+	cmd := exec.Command("go", "run", "../main.go", "mongodb", "--username", "admin", "--password", "admin123", "--host", "localhost", "--port", "27019", "--db-name", "test", "--dir", dumpDir, "--collections", strings.Join(dumpCollections, ","), "--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "mongodump failed")
 
@@ -145,7 +145,7 @@ func (suite *MongoDumpTestSuite) TestExcludeCollectionDump() {
 	dumpDir := "../dump/"
 	ext := ".json"
 	excludeCollections := []string{"users"}
-	cmd := exec.Command("go", "run", "../main.go", "mongodb", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "27019", "-d", "test", "--dir", dumpDir, "-e", strings.Join(excludeCollections, ","))
+	cmd := exec.Command("go", "run", "../main.go", "mongodb", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "27019", "-d", "test", "--dir", dumpDir, "-e", strings.Join(excludeCollections, ","), "--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "mongodump failed")
 
@@ -168,7 +168,7 @@ func (suite *MongoDumpTestSuite) TestAggregatedDump() {
 	ext := ".json"
 	dumpCollections := []string{"users", "photos"}
 	excludeCollections := []string{"users"}
-	cmd := exec.Command("go", "run", "../main.go", "mongodb", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "27019", "-d", "test", "--dir", dumpDir, "-c", strings.Join(dumpCollections, ","), "-e", strings.Join(excludeCollections, ","))
+	cmd := exec.Command("go", "run", "../main.go", "mongodb", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "27019", "-d", "test", "--dir", dumpDir, "-c", strings.Join(dumpCollections, ","), "-e", strings.Join(excludeCollections, ","), "--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "mongodump failed")
 
