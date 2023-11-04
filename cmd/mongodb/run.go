@@ -81,6 +81,7 @@ func run(cmd *cobra.Command, args []string) {
 	collections, _ := cmd.Flags().GetStringSlice("collections")
 	collectionsExclude, _ := cmd.Flags().GetStringSlice("exclude-collections")
 	output, _ := cmd.Flags().GetString("output")
+	testMode, _ := cmd.Flags().GetBool("test-mode")
 
 	if !isOutputTypeValid(output) {
 		log.Fatal("invalid output type. valid types are: json, bson, gzip")
@@ -114,9 +115,15 @@ func run(cmd *cobra.Command, args []string) {
 
 	var wg sync.WaitGroup
 	
-	bars := utils.GetBars(collections, "collection")
+	bars := utils.GetBars(collections, "collection",testMode)
 
-	barPool, err := pb.StartPool(bars...)
+	var barPool *pb.Pool
+
+	if testMode {
+		barPool, err = nil, nil
+	} else {
+		barPool, err = pb.StartPool(bars...)
+	}
 
 	if err != nil {
 		log.Fatal(err)
@@ -129,7 +136,9 @@ func run(cmd *cobra.Command, args []string) {
 
 	wg.Wait()
 
-	barPool.Stop()
+	if barPool != nil {
+		barPool.Stop()
+	}
 
 	fmt.Println("dumped collections successfully")
 }

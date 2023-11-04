@@ -23,6 +23,7 @@ func init(){
 	MongodbCmd.Flags().StringSliceP("collections", "c", []string{}, "name of the collections to dump")
 	MongodbCmd.Flags().StringSliceP("exclude-collections", "e", []string{}, "name of the collections to exclude")
 	MongodbCmd.Flags().StringP("output", "o", "json", "output format of the dump (json, bson, gzip)")
+	MongodbCmd.Flags().Bool("test-mode",false, "run the command in test mode (not showing progress bar)")
 
 	MongodbCmd.MarkFlagRequired("db-name")
 	MongodbCmd.MarkFlagsRequiredTogether("username", "password")

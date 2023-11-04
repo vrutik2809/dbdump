@@ -24,10 +24,15 @@ func GetBarTemplate(entityType string, entity string) string {
 	return fmt.Sprintf("{{ \"dumping %s:\" }} {{ \"%s\" }} {{ bar . \"[\" \"=\" \">\" \"_\" \"]\"}} {{percent .}}", entityType, entity)
 }
 
-func GetBars(arr []string, entityType string) []*pb.ProgressBar {
+func GetBars(arr []string, entityType string,testMode bool) []*pb.ProgressBar {
 	bars := []*pb.ProgressBar{}
 	for _, entity := range arr {
-		bar := pb.New(0).SetTemplateString(GetBarTemplate(entityType, entity)).SetMaxWidth(80)
+		var bar *pb.ProgressBar
+		if testMode {
+			bar = nil
+		} else {
+			bar = pb.New(0).SetTemplateString(GetBarTemplate(entityType, entity)).SetMaxWidth(80)
+		}
 		bars = append(bars, bar)
 	}
 	return bars

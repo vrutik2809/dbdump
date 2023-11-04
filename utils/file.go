@@ -21,7 +21,9 @@ func BsonDArrayToJsonFile(bsonDArray []bson.D, bar *pb.ProgressBar, filename str
 
 	count := len(bsonDArray)
 
-	bar.SetTotal(int64(count))
+	if bar != nil {
+		bar.SetTotal(int64(count))
+	}
 
 	for _, bsonD := range bsonDArray {
 		res, err := BsonDToMap(bsonD)
@@ -29,15 +31,19 @@ func BsonDArrayToJsonFile(bsonDArray []bson.D, bar *pb.ProgressBar, filename str
 			return err
 		}
 		result = append(result, res)
-		bar.Increment()
+		if bar != nil {
+			bar.Increment()
+		}
 	}
 
-	if count == 0 {
+	if count == 0 && bar != nil {
 		bar.SetTotal(1)
 		bar.SetCurrent(1)
 	}
 
-	bar.Finish()
+	if bar != nil {
+		bar.Finish()
+	}
 
 	jsonData, err := json.MarshalIndent(result, "", "\t")
 	if err != nil {
@@ -58,7 +64,9 @@ func BsonDArrayToFile(bsonDArray []bson.D, bar *pb.ProgressBar, filename string)
 
 	count := len(bsonDArray)
 
-	bar.SetTotal(int64(count))
+	if bar != nil {
+		bar.SetTotal(int64(count))
+	}
 
 	for _, bsonD := range bsonDArray {
 		data, err := bson.Marshal(bsonD)
@@ -66,15 +74,19 @@ func BsonDArrayToFile(bsonDArray []bson.D, bar *pb.ProgressBar, filename string)
 			return err
 		}
 		file.Write(data)
-		bar.Increment()
+		if bar != nil {
+			bar.Increment()
+		}
 	}
 
-	if count == 0 {
+	if count == 0 && bar != nil {
 		bar.SetTotal(1)
 		bar.SetCurrent(1)
 	}
 
-	bar.Finish()
+	if bar != nil {
+		bar.Finish()
+	}
 
 	return nil
 }
@@ -91,7 +103,9 @@ func BsonDArrayToGzipFile(bsonDArray []bson.D, bar *pb.ProgressBar, filename str
 
 	count := len(bsonDArray)
 
-	bar.SetTotal(int64(count))
+	if bar != nil {
+		bar.SetTotal(int64(count))
+	}
 
 	for _, bsonD := range bsonDArray {
 		data, err := bson.Marshal(bsonD)
@@ -99,15 +113,19 @@ func BsonDArrayToGzipFile(bsonDArray []bson.D, bar *pb.ProgressBar, filename str
 			return err
 		}
 		gzipWriter.Write(data)
-		bar.Increment()
+		if bar != nil {
+			bar.Increment()
+		}
 	}
 
-	if count == 0 {
+	if count == 0 && bar != nil {
 		bar.SetTotal(1)
 		bar.SetCurrent(1)
 	}
 
-	bar.Finish()
+	if bar != nil {
+		bar.Finish()
+	}
 
 	return nil
 }
