@@ -31,19 +31,19 @@ func (suite *PgDumpTestSuite) SetupSuite() {
 	suite.T().Log("Connected to PostgreSQL | uri: " + pg.GetURI())
 
 	tables := []map[string]interface{}{
-		map[string]interface{}{
+		{
 			"name":        "users",
 			"createQuery": "CREATE TABLE users (id INT NOT NULL, name VARCHAR (50) NOT NULL, email VARCHAR (50) NOT NULL);",
 			"insertQuery": "INSERT INTO users (id, name, email) VALUES (1, 'user1', 'user1@gmail.com'), (2, 'user2', 'user2@gmail.com'), (3, 'user3','user3@gmail.com');",
 			"dropQuery":   "DROP TABLE users;",
 		},
-		map[string]interface{}{
+		{
 			"name":        "photos",
 			"createQuery": "CREATE TABLE photos (id INT NOT NULL, url VARCHAR (50) NOT NULL, user_id INT NOT NULL);",
 			"insertQuery": "INSERT INTO photos (id, url, user_id) VALUES (1, 'https://user1.com', 1), (2, 'https://user2.com', 2), (3, 'https://user3.com', 3);",
 			"dropQuery":   "DROP TABLE photos;",
 		},
-		map[string]interface{}{
+		{
 			"name":        "profiles",
 			"createQuery": "CREATE TABLE profiles (id INT NOT NULL, user_id INT NOT NULL, age INT NOT NULL);",
 			"insertQuery": "INSERT INTO profiles (id, user_id, age) VALUES (1, 1, 20), (2, 2, 21), (3, 3, 22);",
