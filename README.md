@@ -101,6 +101,7 @@ dbdump mysql -u root --password root --host localhost -p 3306 -d test -o tsv
     |`--collections`|`-c`|name of the collections to dump|`[]`|
     |`--exclude-collections`|`-e`|name of the collections to exclude|`[]`|
     |`--output`|`-o`|output format of the dump `(json,bson,gzip)`|`json`|
+    |`--test-mode`||run the command in test mode (not showing progress bar)|`false`|
     |`--help`|`-h`|help for the command|
 - common for `pg` and `mysql`
 
@@ -115,6 +116,7 @@ dbdump mysql -u root --password root --host localhost -p 3306 -d test -o tsv
     |`--tables`|`-t`|name of the tables to dump|`[]`|
     |`--exclude-tables`|`-e`|name of the tables to exclude|`[]`|
     |`--output`|`-o`|output format of the dump `(json,csv,tsv)`|`json`|
+    |`--test-mode`||run the command in test mode (not showing progress bar)|`false`|
     |`--help`|`-h`|help for the command|
 
 > You can always pass the `--help` flag to get help for the command
