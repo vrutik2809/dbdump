@@ -22,6 +22,7 @@ func init() {
 	MysqlCmd.Flags().StringSliceP("tables", "t", []string{}, "name of the tables to dump")
 	MysqlCmd.Flags().StringSliceP("exclude-tables", "e", []string{}, "name of the tables to exclude")
 	MysqlCmd.Flags().StringP("output","o","json","output format of the dump (json, csv, tsv)")
+	MysqlCmd.Flags().Bool("test-mode",false, "run the command in test mode (not showing progress bar)")
 
 	MysqlCmd.MarkFlagRequired("db-name")
 }
