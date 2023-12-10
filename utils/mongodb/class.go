@@ -2,9 +2,14 @@ package mongodb
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
+	"math"
+	"os"
 	"time"
+
+	"github.com/vrutik2809/dbdump/utils"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,26 +19,26 @@ import (
 type MongoDB struct {
 	username string
 	password string
-	host string
-	port uint
-	dbName string
-	isSRV bool
-	client *mongo.Client
-	ctx context.Context
-	cancel context.CancelFunc
+	host     string
+	port     uint
+	dbName   string
+	isSRV    bool
+	client   *mongo.Client
+	ctx      context.Context
+	cancel   context.CancelFunc
 }
 
-func NewMongoDB(username string, password string, host string, port uint, dbName string,isSRV bool) *MongoDB {
+func NewMongoDB(username string, password string, host string, port uint, dbName string, isSRV bool) *MongoDB {
 	return &MongoDB{
 		username: username,
 		password: password,
-		host: host,
-		port: port,
-		dbName: dbName,
-		isSRV: isSRV,
-		client: nil,
-		ctx: nil,
-		cancel: nil,
+		host:     host,
+		port:     port,
+		dbName:   dbName,
+		isSRV:    isSRV,
+		client:   nil,
+		ctx:      nil,
+		cancel:   nil,
 	}
 }
 
@@ -111,7 +116,7 @@ func (m *MongoDB) FetchAllDocuments(collection string) ([]bson.D, error) {
 	return results, err
 }
 
-func CollectionFilter(collections []string,collectionsExclude []string) bson.D {
+func CollectionFilter(collections []string, collectionsExclude []string) bson.D {
 	value := bson.A{}
 	if len(collections) > 0 {
 		value = append(value, bson.D{{Key: "name", Value: bson.D{{Key: "$in", Value: collections}}}})
@@ -119,7 +124,7 @@ func CollectionFilter(collections []string,collectionsExclude []string) bson.D {
 	if len(collectionsExclude) > 0 {
 		value = append(value, bson.D{{Key: "name", Value: bson.D{{Key: "$nin", Value: collectionsExclude}}}})
 	}
-	
+
 	var filter bson.D
 	if len(value) == 0 {
 		filter = bson.D{}
@@ -138,12 +143,90 @@ func (m *MongoDB) CreateCollection(collection string) error {
 
 func (m *MongoDB) DropCollection(collection string) error {
 	err := m.client.Database(m.dbName).Collection(collection).Drop(m.ctx)
-	
+
 	return err
 }
 
 func (m *MongoDB) InsertDocuments(collection string, documents []interface{}) error {
 	_, err := m.client.Database(m.dbName).Collection(collection).InsertMany(m.ctx, documents)
-	
+
 	return err
+}
+
+func (m *MongoDB) FetchTotalDocumentsCount(collection string, filter interface{}) (int64, error) {
+	count, err := m.client.Database(m.dbName).Collection(collection).CountDocuments(m.ctx, filter)
+	if err != nil {
+		return -1, err
+	}
+	return count, nil
+}
+
+func (m *MongoDB) DumpDocumentsBatch(collection string, batchSize int64) error {
+	col := m.client.Database(m.dbName).Collection(collection)
+	
+	findOptions := options.Find()
+	findOptions.SetBatchSize(int32(batchSize))
+
+	totalRecords, err := col.CountDocuments(m.ctx, bson.D{})
+	if err != nil {
+		return err
+	}
+
+	batchLimit := int64(math.Ceil(float64(totalRecords) / float64(batchSize)))
+
+	file, err := os.Create(collection + ".json")
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	file.WriteString("[")
+
+	isFirst := true
+
+	for batch := int64(0); batch < batchLimit; batch++ {
+		fmt.Println("Dumping batch: ",batch)
+		offset := batch * batchSize
+
+		filter := bson.D{}
+
+		findOptions.SetSkip(int64(offset))
+		findOptions.SetLimit(int64(batchSize))
+
+		cursor, err := col.Find(m.ctx, filter, findOptions)
+		if err != nil {
+			return err
+		}
+		defer cursor.Close(m.ctx)
+
+		for cursor.Next(m.ctx) {
+			var result bson.D
+			if err := cursor.Decode(&result); err != nil {
+				return err
+			}
+			if !isFirst {
+				file.WriteString(",")
+			}
+			isFirst = false
+
+			data,err := utils.BsonDToMap(result)
+
+			if err != nil {
+				return err
+			}
+
+			jsonData, err := json.MarshalIndent(data, "", "\t")
+			if err != nil {
+				return err
+			}
+
+			file.Write(jsonData)
+		}
+
+		if err := cursor.Err(); err != nil {
+			return err
+		}
+	}
+	file.WriteString("]")
+	return nil
 }
