@@ -78,7 +78,7 @@ func (suite *PgDumpTestSuite) TearDownSuite() {
 func (suite *PgDumpTestSuite) TestJsonDump() {
 	dumpDir := "../dump/"
 	ext := ".json"
-	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir)
+	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir,"--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "pg dump failed")
 
@@ -95,7 +95,7 @@ func (suite *PgDumpTestSuite) TestJsonDump() {
 func (suite *PgDumpTestSuite) TestCSVDump() {
 	dumpDir := "../dump/"
 	ext := ".csv"
-	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir, "-o", "csv")
+	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir, "-o", "csv","--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "pg dump failed")
 
@@ -112,7 +112,7 @@ func (suite *PgDumpTestSuite) TestCSVDump() {
 func (suite *PgDumpTestSuite) TestTSVDump() {
 	dumpDir := "../dump/"
 	ext := ".tsv"
-	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir, "-o", "tsv")
+	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir, "-o", "tsv","--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "pg dump failed")
 
@@ -130,7 +130,7 @@ func (suite *PgDumpTestSuite) TestTablesDump() {
 	dumpDir := "../dump/"
 	ext := ".json"
 	dumpTables := []string{"users", "photos"}
-	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir, "-t", strings.Join(dumpTables, ","))
+	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir, "-t", strings.Join(dumpTables, ","),"--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "pg dump failed")
 
@@ -153,7 +153,7 @@ func (suite *PgDumpTestSuite) TestExcludeTablesDump() {
 	dumpDir := "../dump/"
 	ext := ".json"
 	excludeTables := []string{"photos"}
-	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir, "-e", strings.Join(excludeTables, ","))
+	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir, "-e", strings.Join(excludeTables, ","),"--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "pg dump failed")
 
@@ -177,7 +177,7 @@ func (suite *PgDumpTestSuite) TestAggregatedDump() {
 	ext := ".json"
 	dumpTables := []string{"users", "photos"}
 	excludeTables := []string{"photos"}
-	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir, "-t", strings.Join(dumpTables, ","), "-e", strings.Join(excludeTables, ","))
+	cmd := exec.Command("go", "run", "../main.go", "pg", "-u", "admin", "--password", "admin123", "--host", "localhost", "-p", "5433", "-d", "test", "--dir", dumpDir, "-t", strings.Join(dumpTables, ","), "-e", strings.Join(excludeTables, ","),"--test-mode")
 	err := cmd.Run()
 	assert.NoError(suite.T(), err, "pg dump failed")
 

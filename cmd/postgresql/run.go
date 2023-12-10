@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	"github.com/spf13/cobra"
+	"github.com/cheggaaa/pb/v3"
 
 	"github.com/vrutik2809/dbdump/utils"
 	"github.com/vrutik2809/dbdump/utils/postgresql"
@@ -41,26 +42,25 @@ func getFileExtension(output string) string {
 	}
 }
 
-func writeToOutputFile(output string, result []map[string]interface{}, tableName string) error {
+func writeToOutputFile(output string, bar *pb.ProgressBar, result []map[string]interface{}, tableName string) error {
 	switch output {
 		case JSON:
-			return utils.MapArrayToJSONFile(result, tableName+getFileExtension(output))
+			return utils.MapArrayToJSONFile(result, bar, tableName+getFileExtension(output))
 		case CSV:
-			return utils.MapArrayToCSVFile(result, tableName+getFileExtension(output))
+			return utils.MapArrayToCSVFile(result, bar, tableName+getFileExtension(output))
 		case TSV:
-			return utils.MapArrayToTSVFile(result, tableName+getFileExtension(output))
+			return utils.MapArrayToTSVFile(result, bar, tableName+getFileExtension(output))
 	}
 	return nil
 }
 
-func dumpTable(wg *sync.WaitGroup, pg *postgresql.PostgreSQL, table string, output string) {
+func dumpTable(wg *sync.WaitGroup, bar *pb.ProgressBar, pg *postgresql.PostgreSQL, table string, output string) {
 	defer wg.Done()
-	fmt.Println("dumping table: ", table)
 	rows, err := pg.FetchAllRows(table)
 	if err != nil {
 		log.Fatal(err)
 	}
-	if err := writeToOutputFile(output, rows, table); err != nil {
+	if err := writeToOutputFile(output, bar, rows, table); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -76,6 +76,8 @@ func run(cmd *cobra.Command, args []string) {
 	dumpTables, _ := cmd.Flags().GetStringSlice("tables")
 	excludeTables, _ := cmd.Flags().GetStringSlice("exclude-tables")
 	output, _ := cmd.Flags().GetString("output")
+	testMode, _ := cmd.Flags().GetBool("test-mode")
+
 
 	if !isOutputValid(output) {
 		log.Fatal("invalid output type. valid types are: json, csv, tsv")
@@ -105,12 +107,30 @@ func run(cmd *cobra.Command, args []string) {
 
 	var wg sync.WaitGroup
 
-	for _, table := range tables {
+	bars := utils.GetBars(tables, "table",testMode)
+
+	var barPool *pb.Pool
+
+	if testMode {
+		barPool, err = nil, nil
+	} else {
+		barPool, err = pb.StartPool(bars...)
+	}
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for idx, table := range tables {
 		wg.Add(1)
-		go dumpTable(&wg, pg, table, output)
+		go dumpTable(&wg, bars[idx], pg, table, output)
 	}
 
 	wg.Wait()
+
+	if barPool != nil {
+		barPool.Stop()
+	}
 
 	fmt.Println("dumped tables successfully")
 }

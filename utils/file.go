@@ -130,19 +130,47 @@ func BsonDArrayToGzipFile(bsonDArray []bson.D, bar *pb.ProgressBar, filename str
 	return nil
 }
 
-func MapArrayToJSONFile(mp []map[string]interface{}, filename string) error {
-	jsonData, err := json.MarshalIndent(mp, "", "\t")
-	if err != nil {
-		return err
-	}
-
+func MapArrayToJSONFile(mp []map[string]interface{}, bar *pb.ProgressBar, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	_, err = file.Write(jsonData)
+	file.WriteString("[")
+
+	count := len(mp)
+
+	if bar != nil {
+		bar.SetTotal(int64(count))
+	}
+
+	for idx, row := range mp {
+		jsonData, err := json.MarshalIndent(row, "", "\t")
+		if err != nil {
+			return err
+		}
+		if idx != count-1 {
+			file.WriteString(string(jsonData) + ",\n")
+		} else {
+			file.WriteString(string(jsonData) + "\n")
+		}
+
+		if bar != nil {
+			bar.Increment()
+		}
+	}
+
+	file.WriteString("]")
+
+	if count == 0 && bar != nil {
+		bar.SetTotal(1)
+		bar.SetCurrent(1)
+	}
+
+	if bar != nil {
+		bar.Finish()
+	}
 
 	return err
 }
@@ -151,7 +179,7 @@ func stringToCSVRow(str []string) string {
 	return `"` + strings.Join(str, `","`) + `"` + "\n"
 }
 
-func MapArrayToCSVFile(mp []map[string]interface{}, filename string) error {
+func MapArrayToCSVFile(mp []map[string]interface{}, bar *pb.ProgressBar, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -164,6 +192,12 @@ func MapArrayToCSVFile(mp []map[string]interface{}, filename string) error {
 	}
 	file.WriteString(stringToCSVRow(header))
 
+	count := len(mp)
+
+	if bar != nil {
+		bar.SetTotal(int64(count))
+	}
+
 	for _, row := range mp {
 		rowData := []string{}
 		for _, key := range header {
@@ -171,6 +205,18 @@ func MapArrayToCSVFile(mp []map[string]interface{}, filename string) error {
 			rowData = append(rowData, str)
 		}
 		file.WriteString(stringToCSVRow(rowData))
+		if bar != nil {
+			bar.Increment()
+		}
+	}
+
+	if count == 0 && bar != nil {
+		bar.SetTotal(1)
+		bar.SetCurrent(1)
+	}
+
+	if bar != nil {
+		bar.Finish()
 	}
 
 	return nil
@@ -180,7 +226,7 @@ func stringToTSVRow(str []string) string {
 	return `"` + strings.Join(str, "\"\t\"") + `"` + "\n"
 }
 
-func MapArrayToTSVFile(mp []map[string]interface{}, filename string) error {
+func MapArrayToTSVFile(mp []map[string]interface{}, bar *pb.ProgressBar, filename string) error {
 	file, err := os.Create(filename)
 	if err != nil {
 		return err
@@ -193,6 +239,12 @@ func MapArrayToTSVFile(mp []map[string]interface{}, filename string) error {
 	}
 	file.WriteString(stringToTSVRow(header))
 
+	count := len(mp)
+
+	if bar != nil {
+		bar.SetTotal(int64(count))
+	}
+
 	for _, row := range mp {
 		rowData := []string{}
 		for _, key := range header {
@@ -200,6 +252,18 @@ func MapArrayToTSVFile(mp []map[string]interface{}, filename string) error {
 			rowData = append(rowData, str)
 		}
 		file.WriteString(stringToTSVRow(rowData))
+		if bar != nil {
+			bar.Increment()
+		}
+	}
+
+	if count == 0 && bar != nil {
+		bar.SetTotal(1)
+		bar.SetCurrent(1)
+	}
+
+	if bar != nil {
+		bar.Finish()
 	}
 
 	return nil
