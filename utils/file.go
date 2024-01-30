@@ -186,13 +186,17 @@ func MapArrayToCSVFile(mp []map[string]interface{}, bar *pb.ProgressBar, filenam
 	}
 	defer file.Close()
 
-	header := []string{}
-	for key, _ := range mp[0] {
-		header = append(header, key)
-	}
-	file.WriteString(stringToCSVRow(header))
-
 	count := len(mp)
+
+	header := []string{}
+
+	if count > 0 {
+		for key, _ := range mp[0] {
+			header = append(header, key)
+		}
+		file.WriteString(stringToCSVRow(header))
+	}
+
 
 	if bar != nil {
 		bar.SetTotal(int64(count))
@@ -233,13 +237,16 @@ func MapArrayToTSVFile(mp []map[string]interface{}, bar *pb.ProgressBar, filenam
 	}
 	defer file.Close()
 
-	header := []string{}
-	for key, _ := range mp[0] {
-		header = append(header, key)
-	}
-	file.WriteString(stringToTSVRow(header))
-
 	count := len(mp)
+
+	header := []string{}
+
+	if count > 0 {
+		for key, _ := range mp[0] {
+			header = append(header, key)
+		}
+		file.WriteString(stringToTSVRow(header))
+	}
 
 	if bar != nil {
 		bar.SetTotal(int64(count))
